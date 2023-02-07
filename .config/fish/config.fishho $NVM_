@@ -9,5 +9,5 @@ zoxide init fish | source
 
 # nvm support using bass
 function nvm
-    bass source $NVM_DIR/nvm.sh --no-use ';'nvm $argv'
+    bass source $HOME/.nvm/nvm.sh --no-use ';' nvm $argv
 end

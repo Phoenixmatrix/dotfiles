@@ -1,8 +1,8 @@
 # start by symlinking the top level stuff
 for f in ./.*
 do
-  if [[ -f $file ]]; then
-    ln -s $PWD/$file $HOME/$file;
+  if [[ -f $f ]]; then
+    ln -s $PWD/$f $HOME/$f;
   fi
 done
 

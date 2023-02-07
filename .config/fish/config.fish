@@ -12,3 +12,6 @@ set -x NVM_DIR "$HOME/.nvm"
 function nvm
     bass source $NVM_DIR/nvm.sh --no-use ';' nvm $argv
 end
+
+# should have been set during docker image build
+nvm use default

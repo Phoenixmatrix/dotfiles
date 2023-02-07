@@ -1,5 +1,7 @@
+#!/bin/bash
+
 # start by symlinking the top level stuff
-for f in ./.*
+for f in .[!.]*
 do
   if [[ -f $f ]]; then
     ln -s $PWD/$f $HOME/$f;

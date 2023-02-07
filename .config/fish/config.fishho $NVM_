@@ -8,6 +8,7 @@ starship init fish | source
 zoxide init fish | source
 
 # nvm support using bass
+set -x NVM_DIR "$HOME/.nvm"
 function nvm
-    bass source $HOME/.nvm/nvm.sh --no-use ';' nvm $argv
+    bass source $NVM_DIR/nvm.sh --no-use ';' nvm $argv
 end

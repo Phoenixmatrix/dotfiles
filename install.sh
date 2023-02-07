@@ -2,4 +2,4 @@
 ln -s $PWD/.config/* $HOME/.config/
 
 # fish directory will already exist
-ln -s -f $PWD/config/fish/config.fish $HOME/.config/fish/config.fish
+ln -s -f $PWD/.config/fish/config.fish $HOME/.config/fish/config.fish

@@ -9,3 +9,6 @@ disabled = true
 
 [username]
 disabled = true
+
+[nodejs]
+disabled = true

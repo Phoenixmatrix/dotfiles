@@ -16,7 +16,7 @@ if status is-interactive
     # nvm use default > /dev/null
     
     # aliases for github-copilot-cli
-    alias !="q"
+    alias !!="q"
     alias !g="q -g"
     alias !h="q -h"
 

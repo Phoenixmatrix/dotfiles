@@ -14,6 +14,11 @@ if status is-interactive
 
     # should have been set during docker image build
     nvm use default > /dev/null
+    
+    # aliases for github-copilot-cli
+    alias !="q"
+    alias !g="q -g"
+    alias !h="q -h"
 
     # Requires the GitHub Copilot CLI from GitHub Next
     # https://www.npmjs.com/package/@githubnext/github-copilot-cli#user-content-installation-and-setup

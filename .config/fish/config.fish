@@ -12,8 +12,8 @@ if status is-interactive
     starship init fish | source
     zoxide init fish | source
 
-    # should have been set during docker image build
-    nvm use default > /dev/null
+    # should have been set during docker image build. Slow so commented out by default
+    # nvm use default > /dev/null
     
     # aliases for github-copilot-cli
     alias !="q"

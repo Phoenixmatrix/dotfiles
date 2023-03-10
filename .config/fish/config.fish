@@ -11,7 +11,8 @@ if status is-interactive
     # Commands to run in interactive sessions can go here
     starship init fish | source
     zoxide init fish | source
-    eval (ssh-agent -c) > /dev/null
+    keychain -q --ignore-missing ~/.ssh/id_rsa
+    source $HOME/.keychain/$HOSTNAME-fish
 
     # should have been set during docker image build. Slow so commented out by default
     # nvm use default > /dev/null

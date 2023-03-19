@@ -21,6 +21,13 @@ if status is-interactive
     alias !!="q"
     alias !g="q -g"
     alias !h="q -h"
+    
+    # pnpm
+    set -gx PNPM_HOME "/root/.local/share/pnpm"
+    if not string match -q -- $PNPM_HOME $PATH
+      set -gx PATH "$PNPM_HOME" $PATH
+    end
+    # pnpm end
 
     # Requires the GitHub Copilot CLI from GitHub Next
     # https://www.npmjs.com/package/@githubnext/github-copilot-cli#user-content-installation-and-setup

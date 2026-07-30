@@ -1,0 +1,4 @@
+interface:
+  display_name: "Configure Ubuntu Workstation"
+  short_description: "Rebuild a portable Ubuntu developer setup"
+  default_prompt: "Use $configure-ubuntu-workstation to configure this Ubuntu workstation from the dotfiles repository."

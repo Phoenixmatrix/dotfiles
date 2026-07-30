@@ -1,90 +1,42 @@
-fish_add_path ~/.local/bin
+set -g fish_greeting
 
-# nvm support using bass
-set -x NVM_DIR "$HOME/.nvm"
+fish_add_path "$HOME/.local/bin"
+fish_add_path "$HOME/.cargo/bin"
+fish_add_path "$HOME/go/bin"
 
-function nvm
-    bass source $NVM_DIR/nvm.sh --no-use ';' nvm $argv
+set -gx PNPM_HOME "$HOME/.local/share/pnpm"
+fish_add_path "$PNPM_HOME"
+
+if test -d "$HOME/.bun/bin"
+    fish_add_path "$HOME/.bun/bin"
 end
 
 if status is-interactive
-    # Commands to run in interactive sessions can go here
-    starship init fish | source
-    zoxide init fish | source
-    keychain -q --ignore-missing $HOME/.ssh/id_rsa
-    source $HOME/.keychain/$hostname-fish
-
-    # should have been set during docker image build. Slow so commented out by default
-    # nvm use default > /dev/null
-    
-    # aliases for github-copilot-cli
-    alias !!="q"
-    alias !g="q -g"
-    alias !h="q -h"
-    
-    # pnpm
-    set -gx PNPM_HOME "/root/.local/share/pnpm"
-    if not string match -q -- $PNPM_HOME $PATH
-      set -gx PATH "$PNPM_HOME" $PATH
+    if type -q starship
+        starship init fish | source
     end
-    # pnpm end
 
-    # Requires the GitHub Copilot CLI from GitHub Next
-    # https://www.npmjs.com/package/@githubnext/github-copilot-cli#user-content-installation-and-setup
-    # This needs do be set up as a function in your fish config. You can use `funced -s q` to do this.
+    if type -q zoxide
+        zoxide init fish | source
+    end
 
-    # Options:
-    # q -g --git: Use github-copilot-cli git-assist
-    # q -h --gh: Use github-copilot-cli gh-assist
-    # Defaults to using what-the-shell (general command assist) if neither option is provided
+    if functions -q fzf_configure_bindings
+        # Keep Fish's normal history binding; use the other fzf.fish bindings.
+        fzf_configure_bindings --history=
+    else if type -q fzf
+        fzf --fish | source
+    end
 
-    complete -c q -s g -l git -d "Use git assist"
-    complete -c q -s h -l gh -d "Use GitHub CLI assist"
+    if type -q zellij
+        zellij setup --generate-completion fish | source
+    end
 
-    function q
-        argparse -si --name q g/git h/gh -- $argv
+    # Ubuntu may expose these binaries under conflict-free names.
+    if not type -q bat; and type -q batcat
+        alias bat=batcat
+    end
 
-        # make sure we're not running an old command if copilot fails later
-        rm -rf /tmp/copilot_output
-
-        set query "$argv"
-        if not test "$query"
-            # prompt user for input if no query is provided
-            read --prompt "set_color --bold 6b75ff; echo -n \" What do you want to do? \"; set_color normal; set_color brblack; echo -n \u203a \"\"; set_color normal;" query
-        end
-
-        if not test "$query"
-            # no query provided, exit
-            return 1
-        end
-
-        set subcmd what-the-shell
-        if test "$_flag_g"
-            set subcmd git-assist
-        end
-        if test "$_flag_h"
-            set subcmd gh-assist
-        end
-
-
-        # run copilot
-        github-copilot-cli $subcmd --shellout /tmp/copilot_output "On Fish Shell: $query"
-
-        if test "$status" -ne 0
-            # copilot failed, exit
-            return 1
-        end
-
-        # read copilot output
-        set cmd (cat /tmp/copilot_output)
-
-        if not test "$cmd"
-            # no command from copilot, exit
-            return 1
-        end
-
-        # execute command
-        commandline $cmd
-        commandline -f execute
+    if not type -q fd; and type -q fdfind
+        alias fd=fdfind
     end
 end

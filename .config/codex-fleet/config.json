@@ -1,0 +1,6 @@
+{
+  "group_by_source": true,
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "service_tier": "priority"
+}

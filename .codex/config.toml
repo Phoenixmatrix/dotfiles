@@ -1,0 +1,55 @@
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
+review_model = "gpt-5.6-luna"
+service_tier = "fast"
+
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+
+[tui]
+status_line = ["model-with-reasoning", "current-dir", "context-remaining", "weekly-limit"]
+status_line_use_colors = true
+
+[features]
+memories = true
+
+[features.network_proxy]
+enabled = true
+
+[features.network_proxy.domains]
+"**.github.com" = "allow"
+"**.githubusercontent.com" = "allow"
+
+[sandbox_workspace_write]
+network_access = true
+exclude_tmpdir_env_var = false
+exclude_slash_tmp = false
+writable_roots = ["~/dev/scratch"]
+
+[auto_review]
+policy = """
+## Trust boundaries
+- APPROVE: reads, edits, and test, build, or lint runs within the workspace
+- APPROVE: Git operations against the current repository's own remote
+- APPROVE: dependency installation declared by the project using pnpm, pip or uv, or Cargo
+- APPROVE: pushes to main or origin/main; repositories that disallow them must use branch protection
+- DENY: commands that print secrets or read credential files without explicit instruction
+- DENY: modifying CI/CD configuration or GitHub Actions workflows without explicit instruction
+- ESCALATE: recursive deletion, hard resets, or bulk deletion outside a temporary or scratch path
+- ESCALATE: network requests to domains not already used by the repository, except through Git or GitHub CLI
+- ESCALATE: firewall, IAM, Cloudflare Access, or authentication-policy changes
+"""
+
+[notice]
+hide_rate_limit_model_nudge = true
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
+[mcp_servers.chrome-devtools]
+command = "pnpm"
+args = ["dlx", "chrome-devtools-mcp@latest"]
+
+[mcp_servers.matrixfleet]
+url = "http://127.0.0.1:27610/mcp"

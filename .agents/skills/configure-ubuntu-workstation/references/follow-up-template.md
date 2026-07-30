@@ -23,7 +23,7 @@ outside the repository:
 install -d -m 700 "$HOME/.config/fish/conf.d"
 touch "$HOME/.config/fish/conf.d/private.fish"
 chmod 600 "$HOME/.config/fish/conf.d/private.fish"
-${EDITOR:-vim} "$HOME/.config/fish/conf.d/private.fish"
+${EDITOR:-nvim} "$HOME/.config/fish/conf.d/private.fish"
 ```
 
 Document required variable names, such as `CF_ACCESS_CLIENT_ID` and

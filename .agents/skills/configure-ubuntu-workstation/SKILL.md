@@ -46,8 +46,10 @@ Ask only questions that change the result:
 Use the curated package groups and official fallbacks in `packages.md`. Prefer
 Ubuntu 26 repositories. Do not add repositories or packages for WSL, Windows
 interop, Wayland development, GPU drivers, Mesa builds, or hardware support.
-Do not install jj, tmux, Neovim, SSH configuration, 1Password configuration,
-Herdr, OpenCode, or Hermes.
+Do not install jj, tmux, SSH configuration, 1Password configuration, Herdr,
+OpenCode, or Hermes. Prefer Neovim over Vim when an editor is requested, and
+allow a shell alias from `vim` to `nvim` when the user accepts the minor
+compatibility differences.
 
 Use pnpm for JavaScript package management. Do not invoke npm. Prefer official
 standalone installers for tools such as Codex and Claude Code when available.
@@ -65,7 +67,6 @@ Handle each mapping separately:
 | `.config/fish/conf.d/fnm.fish` | `~/.config/fish/conf.d/fnm.fish` | Apply only when fnm is installed |
 | `.config/starship.toml` | `~/.config/starship.toml` | Symlink or copy |
 | `.config/zellij/config.kdl` | `~/.config/zellij/config.kdl` | Symlink or copy |
-| `.dircolors` | `~/.dircolors` | Symlink or copy |
 | `.gitconfig` | `~/.gitconfig` | Substitute the confirmed identity; merge or copy |
 | `.config/git/ignore` | `~/.config/git/ignore` | Symlink or copy |
 | `.config/gh/config.yml` | `~/.config/gh/config.yml` | Merge without touching `hosts.yml` |
@@ -79,8 +80,9 @@ Handle each mapping separately:
 | `.config/codex-fleet/config.json` | `~/.config/codex-fleet/config.json` | Apply only when Codex Fleet is installed |
 
 Create parents as needed. Resolve all targets from `$HOME`; never substitute a
-hard-coded username. Reject any candidate content containing `/mnt/c`, `.exe`,
-`WSL`, `/root`, the previous username's home path, or a credential value.
+hard-coded username. Reject path-oriented candidate content containing `/mnt/c`,
+Windows `.exe` command paths, `WSL`, `/root`, the previous username's home path,
+or a credential value.
 
 ## Configure Fish and terminal appearance
 
@@ -130,6 +132,7 @@ Verify the selected subset with the following checks where applicable:
 
 - `fish -n ~/.config/fish/config.fish`
 - a fresh Fish login and `type -a starship zoxide fzf bat fd zellij`
+- `nvim --version` and `fish -c 'type -a vim nvim'` when the Vim alias is selected
 - `git config --global --list --show-origin`
 - `zellij --version` and a clean test session
 - `fc-match "FiraCode Nerd Font Mono"`

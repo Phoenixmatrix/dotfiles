@@ -67,6 +67,7 @@ Handle each mapping separately:
 | `.config/fish/conf.d/fnm.fish` | `~/.config/fish/conf.d/fnm.fish` | Apply only when fnm is installed |
 | `.config/starship.toml` | `~/.config/starship.toml` | Symlink or copy |
 | `.config/zellij/config.kdl` | `~/.config/zellij/config.kdl` | Symlink or copy |
+| `.config/ghostty/config.ghostty` | `~/.config/ghostty/config.ghostty` | Merge or copy when Ghostty is installed |
 | `.gitconfig` | `~/.gitconfig` | Substitute the confirmed identity; merge or copy |
 | `.config/git/ignore` | `~/.config/git/ignore` | Symlink or copy |
 | `.config/gh/config.yml` | `~/.config/gh/config.yml` | Merge without touching `hosts.yml` |
@@ -84,7 +85,7 @@ hard-coded username. Reject path-oriented candidate content containing `/mnt/c`,
 Windows `.exe` command paths, `WSL`, `/root`, the previous username's home path,
 or a credential value.
 
-## Configure Fish and terminal appearance
+## Configure Fish, desktop, and terminal appearance
 
 Install Fisher from its current official instructions and run `fisher update`
 against the tracked `fish_plugins` file. Validate `fish -n` before offering to
@@ -97,6 +98,22 @@ actual family name with `fc-list` and `fc-match`. Configure that family in the
 user-selected GNOME terminal. Use `gsettings` only when its schema and profile
 are discoverable; otherwise give exact GUI steps. Do not assume that GNOME
 Terminal, Console, or Ptyxis is installed.
+
+Install Inter and Fira Sans as described in `references/packages.md`, then
+verify the exact family and style names with `fc-match`. When the relevant
+schemas and keys are available, reproduce the GNOME Tweaks font choices with:
+
+```sh
+gsettings set org.gnome.desktop.interface font-name 'Inter Medium 11'
+gsettings set org.gnome.desktop.interface document-font-name 'Fira Sans 11'
+gsettings set org.gnome.desktop.interface monospace-font-name 'FiraCode Nerd Font Medium 11'
+gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Ubuntu Sans Bold 11'
+```
+
+If Ghostty is selected and installed, apply the tracked
+`~/.config/ghostty/config.ghostty`. It selects FiraCode Nerd Font SemiBold at
+12 points and narrows each cell by one pixel. Confirm the installed Ghostty
+build recognizes the tracked keys with `ghostty +show-config`.
 
 ## Configure development and agent tools
 
@@ -136,6 +153,9 @@ Verify the selected subset with the following checks where applicable:
 - `git config --global --list --show-origin`
 - `zellij --version` and a clean test session
 - `fc-match "FiraCode Nerd Font Mono"`
+- `fc-match "Inter Medium"`, `fc-match "Fira Sans"`, and `fc-match "Ubuntu Sans Bold"`
+- the four GNOME font values with their corresponding `gsettings get` commands
+- `ghostty +show-config` when Ghostty is configured
 - `node --version`, `pnpm --version`, `rustc --version`, and `go version`
 - `gh auth status`, without printing tokens
 - `claude doctor`

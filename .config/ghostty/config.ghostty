@@ -1,0 +1,6 @@
+keybind = ctrl+shift+c=copy_to_clipboard
+theme = One Half Dark
+font-family = FiraCode Nerd Font
+font-style = SemiBold
+font-size = 12
+adjust-cell-width = -1

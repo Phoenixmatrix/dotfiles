@@ -47,7 +47,9 @@ Use the curated package groups and official fallbacks in `packages.md`. Prefer
 Ubuntu 26 repositories. Do not add repositories or packages for WSL, Windows
 interop, Wayland development, GPU drivers, Mesa builds, or hardware support.
 Do not install jj, tmux, SSH configuration, 1Password configuration, Herdr,
-OpenCode, or Hermes. Prefer Neovim over Vim when an editor is requested, and
+OpenCode, or Hermes. SSH configuration stays manual; see
+[SSH connection multiplexing](#ssh-connection-multiplexing-manual-reference)
+for the ControlMaster pattern to suggest in the follow-up document. Prefer Neovim over Vim when an editor is requested, and
 allow a shell alias from `vim` to `nvim` when the user accepts the minor
 compatibility differences.
 
@@ -131,7 +133,39 @@ Treat Claude plugins, Codex skills, Chrome DevTools MCP, Matrixfleet MCP, and
 repository-backed skills as optional follow-up work. Do not copy their caches
 or create broken symlinks before their source repositories exist.
 
-## Generate the follow-up document
+## SSH connection multiplexing (manual reference)
+
+`~/.ssh/config` is never tracked in this repository or written by this skill,
+because `~/.ssh` also holds keys and host state. Instead, document this
+ControlMaster pattern in the follow-up document so the user can apply it by
+hand to frequently used hosts:
+
+```
+Host <alias>
+  ControlMaster auto
+  ControlPath ~/.ssh/cm-%C
+  ControlPersist 10m
+
+Host github.com
+  ControlMaster auto
+  ControlPath ~/.ssh/cm-%C
+  ControlPersist 2h
+```
+
+Rationale for these choices:
+
+- `ControlMaster auto` reuses an existing master connection when one exists
+  and transparently creates one otherwise, so repeated SSH, `scp`, and Git
+  operations to the same host skip TCP and key negotiation.
+- `ControlPath ~/.ssh/cm-%C` uses `%C`, a hash of local host, remote host,
+  port, and user, which keeps the socket path short and collision-free
+  (long literal paths can exceed the Unix socket length limit).
+- `ControlPersist` keeps the master open in the background after the last
+  session exits: 10 minutes for interactive hosts, 2 hours for `github.com`
+  where many short-lived Git operations benefit from a warm connection.
+
+Sockets land in `~/.ssh`, which must remain mode `700`. A stale socket after
+a network change is cleared with `ssh -O exit <alias>`.
 
 Always create `~/linux-setup-follow-up-YYYY-MM-DD.md` from the reference
 template at the end of a run, even when setup succeeds. Set mode `0600`. Include

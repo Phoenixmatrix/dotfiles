@@ -129,6 +129,31 @@ installed version; use `codex --strict-config` or `/debug-config` to find stale
 keys. Install Claude Code with its current native Linux installer, then verify
 with `claude doctor`. Do not restore the removed Herdr hooks.
 
+For Gitflare access, keep machine-specific credential-helper paths out of the
+tracked `.gitconfig`. At application time, resolve `storage_helper` to an
+installed persistent operating-system credential store. It must only retrieve,
+store, and erase credentials; it must return without prompting when no
+credential exists so the OAuth helper can run.
+
+Configure the host-specific helper chain after resolving `storage_helper`:
+
+```sh
+H=https://git.fward.dev
+git config --global credential.$H.helper ""
+git config --global --add credential.$H.helper "$storage_helper"
+git config --global --add credential.$H.helper "oauth -device"
+git config --global credential.$H.oauthClientId git-credential-oauth
+git config --global credential.$H.oauthAuthURL "$H/oauth/authorize"
+git config --global credential.$H.oauthDeviceAuthURL "$H/oauth/device/code"
+git config --global credential.$H.oauthTokenURL "$H/oauth/token"
+git config --global credential.$H.oauthScopes "repo:read repo:write"
+```
+
+Do not use an in-memory cache when Git commands run under isolated process
+supervisors: its daemon dies with the process tree. Verify persistence with
+authenticated writes from two separate supervised processes. Never copy the
+resolved helper path back into the repository.
+
 Treat Claude plugins, Codex skills, Chrome DevTools MCP, Matrixfleet MCP, and
 repository-backed skills as optional follow-up work. Do not copy their caches
 or create broken symlinks before their source repositories exist.

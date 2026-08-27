@@ -31,12 +31,3 @@
 	set-parent = town set-parent
 	ship = town ship
 	sync = town sync
-[credential "https://git.fward.dev"]
-	helper =
-	helper = cache --timeout 86400
-	helper = oauth -device
-	oauthClientId = git-credential-oauth
-	oauthAuthURL = https://git.fward.dev/oauth/authorize
-	oauthDeviceAuthURL = https://git.fward.dev/oauth/device/code
-	oauthTokenURL = https://git.fward.dev/oauth/token
-	oauthScopes = repo:read repo:write

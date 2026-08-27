@@ -72,6 +72,7 @@ Handle each mapping separately:
 | `.config/ghostty/config.ghostty` | `~/.config/ghostty/config.ghostty` | Merge or copy when Ghostty is installed |
 | `.gitconfig` | `~/.gitconfig` | Substitute the confirmed identity; merge or copy |
 | `.config/git/ignore` | `~/.config/git/ignore` | Symlink or copy |
+| `.config/systemd/user/git-credential-cache.service` | `~/.config/systemd/user/git-credential-cache.service` | Symlink or copy, then enable as a user service |
 | `.config/gh/config.yml` | `~/.config/gh/config.yml` | Merge without touching `hosts.yml` |
 | `.claude/CLAUDE.md` | `~/.claude/CLAUDE.md` | Merge or copy |
 | `.claude/settings.json` | `~/.claude/settings.json` | Semantic JSON merge; never add hooks |
@@ -129,18 +130,18 @@ installed version; use `codex --strict-config` or `/debug-config` to find stale
 keys. Install Claude Code with its current native Linux installer, then verify
 with `claude doctor`. Do not restore the removed Herdr hooks.
 
-For Gitflare access, keep machine-specific credential-helper paths out of the
-tracked `.gitconfig`. At application time, resolve `storage_helper` to an
-installed persistent operating-system credential store. It must only retrieve,
-store, and erase credentials; it must return without prompting when no
-credential exists so the OAuth helper can run.
-
-Configure the host-specific helper chain after resolving `storage_helper`:
+For every repository hosted by Gitflare, run the tracked Linux user service so
+the credential-cache daemon outlives individual supervised Git processes.
+After applying the unit, configure the host-specific helper chain:
 
 ```sh
+systemctl --user daemon-reload
+systemctl --user enable --now git-credential-cache.service
+
 H=https://git.fward.dev
+socket="$XDG_RUNTIME_DIR/git-credential-cache/socket"
 git config --global credential.$H.helper ""
-git config --global --add credential.$H.helper "$storage_helper"
+git config --global --add credential.$H.helper "cache --timeout 86400 --socket $socket"
 git config --global --add credential.$H.helper "oauth -device"
 git config --global credential.$H.oauthClientId git-credential-oauth
 git config --global credential.$H.oauthAuthURL "$H/oauth/authorize"
@@ -149,10 +150,9 @@ git config --global credential.$H.oauthTokenURL "$H/oauth/token"
 git config --global credential.$H.oauthScopes "repo:read repo:write"
 ```
 
-Do not use an in-memory cache when Git commands run under isolated process
-supervisors: its daemon dies with the process tree. Verify persistence with
-authenticated writes from two separate supervised processes. Never copy the
-resolved helper path back into the repository.
+The runtime socket is Linux-only and contains credentials in memory, never in
+the repository. Verify the service is active and perform authenticated writes
+from two separate supervised processes before considering setup complete.
 
 Treat Claude plugins, Codex skills, Chrome DevTools MCP, Matrixfleet MCP, and
 repository-backed skills as optional follow-up work. Do not copy their caches

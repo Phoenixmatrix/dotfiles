@@ -23,12 +23,20 @@ outside the repository:
 install -d -m 700 "$HOME/.config/fish/conf.d"
 touch "$HOME/.config/fish/conf.d/private.fish"
 chmod 600 "$HOME/.config/fish/conf.d/private.fish"
-${EDITOR:-vim} "$HOME/.config/fish/conf.d/private.fish"
+${EDITOR:-nvim} "$HOME/.config/fish/conf.d/private.fish"
 ```
 
 Document required variable names, such as `CF_ACCESS_CLIENT_ID` and
 `CF_ACCESS_CLIENT_SECRET`, but enter their values only in the local editor.
 Prefer project-scoped credentials when global shell variables are unnecessary.
+
+## SSH configuration (manual)
+
+`~/.ssh/config` is not managed by the setup skill. Recreate connection
+multiplexing by hand for frequently used hosts, following the ControlMaster
+pattern documented in the skill (`ControlMaster auto`,
+`ControlPath ~/.ssh/cm-%C`, `ControlPersist 10m`; use `ControlPersist 2h`
+for `github.com`). Keep `~/.ssh` at mode `700` and the config at `600`.
 
 ## Deferred choices
 

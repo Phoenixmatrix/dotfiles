@@ -11,14 +11,20 @@ Install only selected groups after showing them to the user.
 Shell and terminal:
 
 ```text
-fish fzf starship
+fish fzf starship ghostty
+```
+
+Desktop appearance:
+
+```text
+fonts-inter fonts-ubuntu
 ```
 
 Portable Unix and development utilities:
 
 ```text
 ca-certificates curl git gh bat fd-find ripgrep jq unzip xz-utils fontconfig
-vim less file tree zstd
+neovim less file tree zstd
 ```
 
 Build prerequisites, only when a selected tool needs them:
@@ -31,6 +37,9 @@ After installing Ubuntu's `bat` and `fd-find`, check whether `bat` and `fd`
 exist. If Ubuntu provides only `batcat` or `fdfind`, create user-local symlinks
 in `~/.local/bin` or rely on the guarded Fish aliases. Do not overwrite existing
 binaries.
+
+Prefer Neovim over Vim. When requested, add a guarded Fish alias so `vim`
+invokes `nvim`, and verify both names resolve without installing Vim separately.
 
 Do not install WSL packages, Windows interoperability tools, graphics stacks,
 Wayland or X11 development packages, Mesa build dependencies, GPU drivers, or
@@ -65,13 +74,24 @@ Source: https://github.com/jorgebucaran/fisher
 
 Do not compile these from source merely to reproduce the workstation.
 
-## FiraCode Nerd Font
+## Desktop and terminal fonts
 
 Download only the `FiraCode.tar.xz` asset from the latest Nerd Fonts release,
 extract the font files into `~/.local/share/fonts/FiraCodeNerdFont`, and run
 `fc-cache -f`. Do not clone the Nerd Fonts repository.
 
 Source: https://github.com/ryanoasis/nerd-fonts/releases/latest
+
+Install Inter from Ubuntu's `fonts-inter` package. Ubuntu Sans is supplied by
+the standard `fonts-ubuntu` package; verify it is installed before applying the
+GNOME font preferences.
+
+Ubuntu 26 does not provide a Fira Sans package. Download a current Fira Sans
+release from Mozilla's official Fira repository, extract only the font files
+into `~/.local/share/fonts/FiraSans`, and run `fc-cache -f`. Use a temporary
+directory for the archive and extracted files.
+
+Source: https://github.com/mozilla/Fira/releases
 
 ## Node.js and pnpm
 

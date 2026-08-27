@@ -46,8 +46,12 @@ Ask only questions that change the result:
 Use the curated package groups and official fallbacks in `packages.md`. Prefer
 Ubuntu 26 repositories. Do not add repositories or packages for WSL, Windows
 interop, Wayland development, GPU drivers, Mesa builds, or hardware support.
-Do not install jj, tmux, Neovim, SSH configuration, 1Password configuration,
-Herdr, OpenCode, or Hermes.
+Do not install jj, tmux, SSH configuration, 1Password configuration, Herdr,
+OpenCode, or Hermes. SSH configuration stays manual; see
+[SSH connection multiplexing](#ssh-connection-multiplexing-manual-reference)
+for the ControlMaster pattern to suggest in the follow-up document. Prefer Neovim over Vim when an editor is requested, and
+allow a shell alias from `vim` to `nvim` when the user accepts the minor
+compatibility differences.
 
 Use pnpm for JavaScript package management. Do not invoke npm. Prefer official
 standalone installers for tools such as Codex and Claude Code when available.
@@ -65,7 +69,7 @@ Handle each mapping separately:
 | `.config/fish/conf.d/fnm.fish` | `~/.config/fish/conf.d/fnm.fish` | Apply only when fnm is installed |
 | `.config/starship.toml` | `~/.config/starship.toml` | Symlink or copy |
 | `.config/zellij/config.kdl` | `~/.config/zellij/config.kdl` | Symlink or copy |
-| `.dircolors` | `~/.dircolors` | Symlink or copy |
+| `.config/ghostty/config.ghostty` | `~/.config/ghostty/config.ghostty` | Merge or copy when Ghostty is installed |
 | `.gitconfig` | `~/.gitconfig` | Substitute the confirmed identity; merge or copy |
 | `.config/git/ignore` | `~/.config/git/ignore` | Symlink or copy |
 | `.config/gh/config.yml` | `~/.config/gh/config.yml` | Merge without touching `hosts.yml` |
@@ -79,10 +83,11 @@ Handle each mapping separately:
 | `.config/codex-fleet/config.json` | `~/.config/codex-fleet/config.json` | Apply only when Codex Fleet is installed |
 
 Create parents as needed. Resolve all targets from `$HOME`; never substitute a
-hard-coded username. Reject any candidate content containing `/mnt/c`, `.exe`,
-`WSL`, `/root`, the previous username's home path, or a credential value.
+hard-coded username. Reject path-oriented candidate content containing `/mnt/c`,
+Windows `.exe` command paths, `WSL`, `/root`, the previous username's home path,
+or a credential value.
 
-## Configure Fish and terminal appearance
+## Configure Fish, desktop, and terminal appearance
 
 Install Fisher from its current official instructions and run `fisher update`
 against the tracked `fish_plugins` file. Validate `fish -n` before offering to
@@ -95,6 +100,22 @@ actual family name with `fc-list` and `fc-match`. Configure that family in the
 user-selected GNOME terminal. Use `gsettings` only when its schema and profile
 are discoverable; otherwise give exact GUI steps. Do not assume that GNOME
 Terminal, Console, or Ptyxis is installed.
+
+Install Inter and Fira Sans as described in `references/packages.md`, then
+verify the exact family and style names with `fc-match`. When the relevant
+schemas and keys are available, reproduce the GNOME Tweaks font choices with:
+
+```sh
+gsettings set org.gnome.desktop.interface font-name 'Inter Medium 11'
+gsettings set org.gnome.desktop.interface document-font-name 'Fira Sans 11'
+gsettings set org.gnome.desktop.interface monospace-font-name 'FiraCode Nerd Font Medium 11'
+gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Ubuntu Sans Bold 11'
+```
+
+If Ghostty is selected and installed, apply the tracked
+`~/.config/ghostty/config.ghostty`. It selects FiraCode Nerd Font SemiBold at
+12 points and narrows each cell by one pixel. Confirm the installed Ghostty
+build recognizes the tracked keys with `ghostty +show-config`.
 
 ## Configure development and agent tools
 
@@ -112,7 +133,39 @@ Treat Claude plugins, Codex skills, Chrome DevTools MCP, Matrixfleet MCP, and
 repository-backed skills as optional follow-up work. Do not copy their caches
 or create broken symlinks before their source repositories exist.
 
-## Generate the follow-up document
+## SSH connection multiplexing (manual reference)
+
+`~/.ssh/config` is never tracked in this repository or written by this skill,
+because `~/.ssh` also holds keys and host state. Instead, document this
+ControlMaster pattern in the follow-up document so the user can apply it by
+hand to frequently used hosts:
+
+```
+Host <alias>
+  ControlMaster auto
+  ControlPath ~/.ssh/cm-%C
+  ControlPersist 10m
+
+Host github.com
+  ControlMaster auto
+  ControlPath ~/.ssh/cm-%C
+  ControlPersist 2h
+```
+
+Rationale for these choices:
+
+- `ControlMaster auto` reuses an existing master connection when one exists
+  and transparently creates one otherwise, so repeated SSH, `scp`, and Git
+  operations to the same host skip TCP and key negotiation.
+- `ControlPath ~/.ssh/cm-%C` uses `%C`, a hash of local host, remote host,
+  port, and user, which keeps the socket path short and collision-free
+  (long literal paths can exceed the Unix socket length limit).
+- `ControlPersist` keeps the master open in the background after the last
+  session exits: 10 minutes for interactive hosts, 2 hours for `github.com`
+  where many short-lived Git operations benefit from a warm connection.
+
+Sockets land in `~/.ssh`, which must remain mode `700`. A stale socket after
+a network change is cleared with `ssh -O exit <alias>`.
 
 Always create `~/linux-setup-follow-up-YYYY-MM-DD.md` from the reference
 template at the end of a run, even when setup succeeds. Set mode `0600`. Include
@@ -130,9 +183,13 @@ Verify the selected subset with the following checks where applicable:
 
 - `fish -n ~/.config/fish/config.fish`
 - a fresh Fish login and `type -a starship zoxide fzf bat fd zellij`
+- `nvim --version` and `fish -c 'type -a vim nvim'` when the Vim alias is selected
 - `git config --global --list --show-origin`
 - `zellij --version` and a clean test session
 - `fc-match "FiraCode Nerd Font Mono"`
+- `fc-match "Inter Medium"`, `fc-match "Fira Sans"`, and `fc-match "Ubuntu Sans Bold"`
+- the four GNOME font values with their corresponding `gsettings get` commands
+- `ghostty +show-config` when Ghostty is configured
 - `node --version`, `pnpm --version`, `rustc --version`, and `go version`
 - `gh auth status`, without printing tokens
 - `claude doctor`
